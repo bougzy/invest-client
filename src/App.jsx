@@ -15,6 +15,7 @@ import { AuthProvider } from './context/AuthContext';
 import "./App.css";
 import ForgotPassword from './components/ForgotPassword';
 import Footer from "./components/Footer"
+import Tawk from "./components/Tawk"
 const App = () => {
   const location = useLocation();
   
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       <Footer />
+      <Tawk />
       </AuthProvider>
     </div>
   );
