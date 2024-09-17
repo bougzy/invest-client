@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Spinner, Container, Alert } from 'react-bootstrap';
 import { getUserDashboard } from '../services/api';
+import InvestmentCard from "./InvestmentCard"
 
 const Profile = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -65,6 +66,7 @@ const Profile = () => {
           </Card.Body>
         </Card>
       )}
+      <div>InvestmentCard</div>
     </Container>
   );
 };
