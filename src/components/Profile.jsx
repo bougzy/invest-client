@@ -66,7 +66,7 @@ const Profile = () => {
           </Card.Body>
         </Card>
       )}
-      <div>
+      <div className="mt-5">
         <InvestmentCard />
       </div>
     </Container>
