@@ -1,76 +1,100 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Button, Spinner, Container, Alert } from 'react-bootstrap';
-import { getUserDashboard } from '../services/api';
-import InvestmentCard from "./InvestmentCard"
+import React, { useState } from 'react';
+import { Card, Button, Modal, Row, Col } from 'react-bootstrap';
+import { FaCopy } from 'react-icons/fa';
 
-const Profile = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [copySuccess, setCopySuccess] = useState('');
+const plans = [
+  { 
+    name: 'Basic Plan', 
+    roi: '5%', 
+    amountRange: '100 - 500 USD', 
+    wallets: [
+      { type: 'Bitcoin', address: 'bc1q86ft8jetypld2upxzlx9x9rv3deun83xgtm3xn' },
+      { type: 'USDT', address: '0x59163F71fdFDD128F1F3CB3eD6Ed1c6626612Cdc' }
+    ]
+  },
+  { 
+    name: 'Premium Plan', 
+    roi: '10%', 
+    amountRange: '500 - 5000 USD', 
+    wallets: [
+      { type: 'Bitcoin', address: 'bc1q86ft8jetypld2upxzlx9x9rv3deun83xgtm3xn' },
+      { type: 'USDT', address: '0x59163F71fdFDD128F1F3CB3eD6Ed1c6626612Cdc' }
+    ]
+  },
+  { 
+    name: 'Ultimate Plan', 
+    roi: '15%', 
+    amountRange: '5000 USD and above', 
+    wallets: [
+      { type: 'Bitcoin', address: 'bc1q86ft8jetypld2upxzlx9x9rv3deun83xgtm3xn' },
+      { type: 'USDT', address: '0x59163F71fdFDD128F1F3CB3eD6Ed1c6626612Cdc' }
+    ]
+  },
+];
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const { data } = await getUserDashboard();
-        setDashboardData(data);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, []);
+function InvestmentCard() {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(dashboardData.referralCode)
-      .then(() => setCopySuccess('Referral code copied!'))
-      .catch(() => setCopySuccess('Failed to copy referral code.'));
+  const handleInvestClick = (plan) => {
+    setSelectedPlan(plan);
+    setShowModal(true);
   };
 
-  return (
-    <Container className="my-5">
-      {loading ? (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
-          <Spinner animation="border" variant="primary" />
-        </div>
-      ) : (
-        <Card className="shadow-lg border-light rounded p-4">
-          <Card.Body>
-            <Card.Title className="text-center mb-4">
-              <h3>Welcome, {dashboardData.username}</h3>
-            </Card.Title>
-            <Card.Text className="mb-2 fw-bold">
-              <strong>Email:</strong> {dashboardData.email}
-            </Card.Text>
-            <Card.Text className="mb-2 fw-bold">
-              <strong>Balance:</strong> ${dashboardData.amount}
-            </Card.Text>
-            <Card.Text className="mb-2 fw-bold">
-              <strong>Profit Balance:</strong> ${dashboardData.profitBalance}
-            </Card.Text>
-            <Card.Text className="mb-2 fw-bold">
-              <strong>Referral Code:</strong> {dashboardData.referralCode}
-              <Button
-                variant="outline-secondary"
-                className="ms-2"
-                onClick={copyToClipboard}
-              >
-                Copy
-              </Button>
-            </Card.Text>
-            <Card.Text className="mb-4 fw-bold">
-              <strong>Referrals:</strong> {dashboardData.referrals}
-            </Card.Text>
-            {copySuccess && <Alert variant="success">{copySuccess}</Alert>}
-          </Card.Body>
-        </Card>
-      )}
-      <div className="mt-5">
-        <InvestmentCard />
-      </div>
-    </Container>
-  );
-};
+  const handleCopy = (walletAddress) => {
+    navigator.clipboard.writeText(walletAddress);
+    alert('Wallet address copied!');
+  };
 
-export default Profile;
+  const handleClose = () => setShowModal(false);
+
+  return (
+    <div className="container">
+      <Row>
+        {plans.map((plan, index) => (
+          <Col md={4} key={index} className="mb-4">
+            <Card className="h-100 text-center shadow" style={{ borderRadius: '10px' }}>
+              <Card.Body>
+                <Card.Title>{plan.name}</Card.Title>
+                <Card.Text>ROI: {plan.roi}</Card.Text>
+                <Card.Text>Investment Range: {plan.amountRange}</Card.Text>
+                <Button variant="primary" onClick={() => handleInvestClick(plan)}>
+                  Invest Now
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      {/* Modal for Investment */}
+      {selectedPlan && (
+        <Modal show={showModal} onHide={handleClose} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Invest in {selectedPlan.name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>Please proceed to make your deposit:</p>
+            {selectedPlan.wallets.map((wallet, index) => (
+              <div key={index} className="mb-3">
+                <p>
+                  <strong>{wallet.type} Wallet:</strong> {wallet.address}
+                </p>
+                <Button variant="outline-secondary" onClick={() => handleCopy(wallet.address)}>
+                  <FaCopy /> Copy to Clipboard
+                </Button>
+              </div>
+            ))}
+            <div className="mt-3">
+              <Button variant="success" onClick={handleClose}>
+                Make Deposit
+              </Button>
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+export default InvestmentCard;
